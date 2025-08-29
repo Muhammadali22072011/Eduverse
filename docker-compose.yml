@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  # Основное приложение EduVerse
+  eduverse:
+    build: .
+    container_name: eduverse_app
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+      - DEBUG=${DEBUG:-False}
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - DATABASE_URL=postgresql://eduverse:eduverse123@postgres:5432/eduverse
+      - REDIS_URL=redis://redis:6379/0
+      - SOCKETIO_ASYNC_MODE=eventlet
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+      - ./backups:/app/backups
+      - ./instance:/app/instance
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - eduverse_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # База данных PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: eduverse_postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=eduverse
+      - POSTGRES_USER=eduverse
+      - POSTGRES_PASSWORD=eduverse123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - eduverse_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eduverse -d eduverse"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis для кэширования и сессий
+  redis:
+    image: redis:7-alpine
+    container_name: eduverse_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - eduverse_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Nginx для reverse proxy (опционально)
+  nginx:
+    image: nginx:alpine
+    container_name: eduverse_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - eduverse
+    networks:
+      - eduverse_network
+
+  # pgAdmin для управления базой данных (только для разработки)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: eduverse_pgadmin
+    restart: unless-stopped
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@eduverse.com
+      - PGADMIN_DEFAULT_PASSWORD=admin123
+      - PGADMIN_CONFIG_SERVER_MODE=False
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - eduverse_network
+    profiles:
+      - dev
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  eduverse_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
