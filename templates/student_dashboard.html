@@ -1,0 +1,491 @@
+{% extends "base.html" %}
+
+{% block title %}EduVerse - Кабинет ученика{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Заголовок страницы -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="fas fa-user-graduate text-primary me-2"></i>
+                Кабинет ученика
+            </h1>
+            <p class="text-muted">Добро пожаловать, {{ current_user.username }}!</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-primary" onclick="viewFullSchedule()">
+                <i class="fas fa-calendar-alt me-2"></i>
+                Полное расписание
+            </button>
+            <button class="btn btn-outline-success" onclick="viewAllGrades()">
+                <i class="fas fa-chart-line me-2"></i>
+                Все оценки
+            </button>
+        </div>
+    </div>
+
+    <!-- Статистика ученика -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="dashboard-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="dashboard-stat">{{ stats.average_grade|default('N/A') }}</div>
+                            <div class="text-muted">Средний балл</div>
+                        </div>
+                        <div class="dashboard-icon text-primary">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="dashboard-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="dashboard-stat">{{ stats.subjects_count|default(0) }}</div>
+                            <div class="text-muted">Предметов</div>
+                        </div>
+                        <div class="dashboard-icon text-success">
+                            <i class="fas fa-book"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="dashboard-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="dashboard-stat">{{ stats.attendance_percent|default(0) }}%</div>
+                            <div class="text-muted">Посещаемость</div>
+                        </div>
+                        <div class="dashboard-icon text-info">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="dashboard-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="dashboard-stat">{{ stats.homework_count|default(0) }}</div>
+                            <div class="text-muted">Домашних заданий</div>
+                        </div>
+                        <div class="dashboard-icon text-warning">
+                            <i class="fas fa-home"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="row g-4">
+        <!-- Расписание на сегодня -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-day me-2"></i>
+                        Расписание на сегодня
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if today_schedule %}
+                        <div class="schedule-today">
+                            {% for lesson in today_schedule %}
+                            <div class="schedule-item d-flex align-items-center p-3 border-bottom">
+                                <div class="schedule-time me-3">
+                                    <div class="fw-bold">{{ lesson.start_time }} - {{ lesson.end_time }}</div>
+                                    <small class="text-muted">{{ lesson.room }}</small>
+                                </div>
+                                <div class="schedule-content flex-grow-1">
+                                    <div class="fw-bold">{{ lesson.subject_name }}</div>
+                                    <small class="text-muted">{{ lesson.teacher_name }}</small>
+                                </div>
+                                <div class="schedule-actions">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewLessonDetails({{ lesson.id }})">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Сегодня нет занятий</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Последние оценки -->
+            <div class="card mt-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Последние оценки
+                    </h5>
+                    <a href="{{ url_for('student_grades') }}" class="btn btn-sm btn-outline-primary">
+                        Все оценки
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if recent_grades %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Предмет</th>
+                                        <th>Оценка</th>
+                                        <th>Дата</th>
+                                        <th>Комментарий</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for grade in recent_grades %}
+                                    <tr>
+                                        <td>{{ grade.subject_name }}</td>
+                                        <td>
+                                            <span class="grade-badge {{ get_grade_class(grade.grade) }}">
+                                                {{ grade.grade }}
+                                            </span>
+                                        </td>
+                                        <td>{{ grade.date.strftime('%d.%m.%Y') }}</td>
+                                        <td>{{ grade.comment|default('-') }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Пока нет оценок</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Боковая панель -->
+        <div class="col-lg-4">
+            <!-- Календарь -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        Календарь событий
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div id="studentCalendar" class="calendar-widget"></div>
+                </div>
+            </div>
+
+            <!-- Домашние задания -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-home me-2"></i>
+                        Домашние задания
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if homework %}
+                        <div class="homework-list">
+                            {% for hw in homework %}
+                            <div class="homework-item mb-3 p-3 border rounded">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h6 class="mb-0">{{ hw.subject_name }}</h6>
+                                    <span class="badge bg-{{ 'success' if hw.is_completed else 'warning' }}">
+                                        {{ 'Выполнено' if hw.is_completed else 'К выполнению' }}
+                                    </span>
+                                </div>
+                                <p class="mb-2">{{ hw.description|truncate(100) }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">Срок: {{ hw.due_date.strftime('%d.%m.%Y') }}</small>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="viewHomework({{ hw.id }})">
+                                        Подробнее
+                                    </button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">Нет домашних заданий</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Уведомления -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-bell me-2"></i>
+                        Уведомления
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% if notifications %}
+                        <div class="notification-list">
+                            {% for notification in notifications %}
+                            <div class="notification-item d-flex align-items-start mb-3">
+                                <div class="notification-icon me-3">
+                                    <i class="fas fa-{{ notification.icon }} text-{{ notification.color }}"></i>
+                                </div>
+                                <div class="notification-content">
+                                    <div class="notification-text">{{ notification.message }}</div>
+                                    <small class="text-muted">{{ notification.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">Нет новых уведомлений</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Дополнительные секции -->
+    <div class="row g-4 mt-4">
+        <!-- Учебные материалы -->
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-book-open me-2"></i>
+                        Учебные материалы
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if materials %}
+                        <div class="row g-3">
+                            {% for material in materials %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="material-card p-3 border rounded h-100">
+                                    <div class="d-flex align-items-start mb-2">
+                                        <div class="material-icon me-3">
+                                            <i class="fas fa-{{ material.icon }} fa-2x text-primary"></i>
+                                        </div>
+                                        <div class="material-info flex-grow-1">
+                                            <h6 class="mb-1">{{ material.title }}</h6>
+                                            <small class="text-muted">{{ material.subject_name }}</small>
+                                        </div>
+                                    </div>
+                                    <p class="mb-3">{{ material.description|truncate(100) }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">{{ material.upload_date.strftime('%d.%m.%Y') }}</small>
+                                        <button class="btn btn-sm btn-primary" onclick="downloadMaterial({{ material.id }})">
+                                            <i class="fas fa-download me-1"></i>
+                                            Скачать
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Пока нет учебных материалов</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно деталей урока -->
+<div class="modal fade" id="lessonDetailsModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Детали урока
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="lessonDetailsContent">
+                <!-- Содержимое будет загружено динамически -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно домашнего задания -->
+<div class="modal fade" id="homeworkModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-home me-2"></i>
+                    Домашнее задание
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="homeworkContent">
+                <!-- Содержимое будет загружено динамически -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <button type="button" class="btn btn-success" id="markCompletedBtn">
+                    <i class="fas fa-check me-2"></i>
+                    Отметить как выполненное
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Инициализация календаря при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация календаря с событиями
+    const events = [
+        // Здесь будут события из базы данных
+    ];
+    
+    EduVerse.initializeCalendar('studentCalendar', events);
+});
+
+// Функции для работы с расписанием
+function viewFullSchedule() {
+    window.location.href = '/student/schedule';
+}
+
+function viewLessonDetails(lessonId) {
+    // Загрузка деталей урока
+    fetch(`/api/lessons/${lessonId}`)
+        .then(response => response.json())
+        .then(data => {
+            const content = `
+                <div class="lesson-details">
+                    <h6>${data.subject_name}</h6>
+                    <p><strong>Время:</strong> ${data.start_time} - ${data.end_time}</p>
+                    <p><strong>Учитель:</strong> ${data.teacher_name}</p>
+                    <p><strong>Кабинет:</strong> ${data.room || 'Не указан'}</p>
+                    <p><strong>Описание:</strong> ${data.description || 'Описание отсутствует'}</p>
+                </div>
+            `;
+            
+            document.getElementById('lessonDetailsContent').innerHTML = content;
+            new bootstrap.Modal(document.getElementById('lessonDetailsModal')).show();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            EduVerse.showNotification('Ошибка при загрузке деталей урока', 'danger');
+        });
+}
+
+// Функции для работы с оценками
+function viewAllGrades() {
+    window.location.href = '/student/grades';
+}
+
+// Функции для работы с домашними заданиями
+function viewHomework(homeworkId) {
+    // Загрузка деталей домашнего задания
+    fetch(`/api/homework/${homeworkId}`)
+        .then(response => response.json())
+        .then(data => {
+            const content = `
+                <div class="homework-details">
+                    <h6>${data.subject_name}</h6>
+                    <p><strong>Описание:</strong></p>
+                    <div class="border rounded p-3 mb-3">${data.description}</div>
+                    <p><strong>Срок выполнения:</strong> ${EduVerse.formatDate(data.due_date)}</p>
+                    <p><strong>Статус:</strong> 
+                        <span class="badge bg-${data.is_completed ? 'success' : 'warning'}">
+                            ${data.is_completed ? 'Выполнено' : 'К выполнению'}
+                        </span>
+                    </p>
+                    ${data.attachments ? `
+                        <p><strong>Вложения:</strong></p>
+                        <ul class="list-unstyled">
+                            ${data.attachments.map(att => `
+                                <li><i class="fas fa-paperclip me-2"></i>${att.name}</li>
+                            `).join('')}
+                        </ul>
+                    ` : ''}
+                </div>
+            `;
+            
+            document.getElementById('homeworkContent').innerHTML = content;
+            
+            // Показ/скрытие кнопки "Отметить как выполненное"
+            const markBtn = document.getElementById('markCompletedBtn');
+            if (data.is_completed) {
+                markBtn.style.display = 'none';
+            } else {
+                markBtn.style.display = 'block';
+                markBtn.onclick = () => markHomeworkCompleted(homeworkId);
+            }
+            
+            new bootstrap.Modal(document.getElementById('homeworkModal')).show();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            EduVerse.showNotification('Ошибка при загрузке домашнего задания', 'danger');
+        });
+}
+
+function markHomeworkCompleted(homeworkId) {
+    // Отметка домашнего задания как выполненного
+    fetch(`/api/homework/${homeworkId}/complete`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            EduVerse.showNotification('Домашнее задание отмечено как выполненное!', 'success');
+            location.reload();
+        } else {
+            EduVerse.showNotification('Ошибка при обновлении статуса', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        EduVerse.showNotification('Ошибка при обновлении статуса', 'danger');
+    });
+}
+
+// Функции для работы с материалами
+function downloadMaterial(materialId) {
+    // Скачивание учебного материала
+    window.open(`/api/materials/${materialId}/download`, '_blank');
+}
+
+// Обновление данных каждые 5 минут
+setInterval(function() {
+    // Здесь можно добавить обновление уведомлений и других данных
+    console.log('Обновление данных...');
+}, 300000);
+</script>
+{% endblock %}

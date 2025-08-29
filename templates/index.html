@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}EduVerse - Главная{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section text-center py-5 mb-5">
+    <div class="container">
+        <h1 class="display-4 fw-bold text-primary mb-4">
+            <i class="fas fa-graduation-cap me-3"></i>
+            EduVerse
+        </h1>
+        <p class="lead mb-4">
+            Многофункциональная образовательная платформа нового поколения для создания и управления школами
+        </p>
+        <div class="hero-buttons">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg me-3">
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    Перейти в кабинет
+                </a>
+            {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg me-3">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Начать обучение
+                </a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Войти в систему
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="features-section mb-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Возможности платформы</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-calendar-alt fa-3x text-primary"></i>
+                    </div>
+                    <h4>Расписание и календарь</h4>
+                    <p>Удобное планирование занятий, экзаменов и событий с автоматическим уведомлением</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-comments fa-3x text-primary"></i>
+                    </div>
+                    <h4>Система чатов</h4>
+                    <p>Общение между учениками, учителями и родителями в реальном времени</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-chart-line fa-3x text-primary"></i>
+                    </div>
+                    <h4>Отслеживание оценок</h4>
+                    <p>10-балльная система оценок с детальной аналитикой успеваемости</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-credit-card fa-3x text-primary"></i>
+                    </div>
+                    <h4>Управление оплатами</h4>
+                    <p>Контроль платежей с автоматическими уведомлениями и отчетностью</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-users fa-3x text-primary"></i>
+                    </div>
+                    <h4>Родительский кабинет</h4>
+                    <p>Полный контроль над успеваемостью и расписанием ребенка</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card text-center p-4 h-100">
+                    <div class="feature-icon mb-3">
+                        <i class="fas fa-shield-alt fa-3x text-primary"></i>
+                    </div>
+                    <h4>Гибкая система ролей</h4>
+                    <p>Разграничение прав доступа для разных типов пользователей</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Roles Section -->
+<div class="roles-section mb-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Роли пользователей</h2>
+        <div class="row g-4">
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="role-card text-center p-3 h-100">
+                    <div class="role-icon mb-2">
+                        <i class="fas fa-crown fa-2x text-warning"></i>
+                    </div>
+                    <h6>Супер-админ</h6>
+                    <small class="text-muted">Управление платформой</small>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="role-card text-center p-3 h-100">
+                    <div class="role-icon mb-2">
+                        <i class="fas fa-user-shield fa-2x text-info"></i>
+                    </div>
+                    <h6>Админ проекта</h6>
+                    <small class="text-muted">Модерация школ</small>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="role-card text-center p-3 h-100">
+                    <div class="role-icon mb-2">
+                        <i class="fas fa-building fa-2x text-success"></i>
+                    </div>
+                    <h6>Админ школы</h6>
+                    <small class="text-muted">Управление школой</small>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="role-card text-center p-3 h-100">
+                    <div class="role-icon mb-2">
+                        <i class="fas fa-chalkboard-teacher fa-2x text-primary"></i>
+                    </div>
+                    <h6>Учитель</h6>
+                    <small class="text-muted">Ведение предметов</small>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="role-card text-center p-3 h-100">
+                    <div class="role-icon mb-2">
+                        <i class="fas fa-user-graduate fa-2x text-secondary"></i>
+                    </div>
+                    <h6>Ученик</h6>
+                    <small class="text-muted">Обучение</small>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+                <div class="role-card text-center p-3 h-100">
+                    <div class="role-icon mb-2">
+                        <i class="fas fa-user-friends fa-2x text-danger"></i>
+                    </div>
+                    <h6>Родитель</h6>
+                    <small class="text-muted">Контроль ребенка</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="cta-section text-center py-5 bg-light rounded">
+    <div class="container">
+        <h3 class="mb-3">Готовы начать?</h3>
+        <p class="mb-4">Присоединяйтесь к EduVerse и откройте новые возможности в образовании</p>
+        {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-rocket me-2"></i>
+                Создать аккаунт
+            </a>
+        {% else %}
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-arrow-right me-2"></i>
+                Перейти в кабинет
+            </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

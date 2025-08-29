@@ -1,0 +1,481 @@
+{% extends "base.html" %}
+
+{% block title %}EduVerse - Панель управления{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Заголовок страницы -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="fas fa-crown text-warning me-2"></i>
+                Панель управления платформой
+            </h1>
+            <p class="text-muted">Управление школами, пользователями и настройками платформы</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSchoolModal">
+                <i class="fas fa-plus me-2"></i>
+                Создать школу
+            </button>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createUserModal">
+                <i class="fas fa-user-plus me-2"></i>
+                Создать пользователя
+            </button>
+        </div>
+    </div>
+
+    <!-- Статистика платформы -->
+    <div class="row g-4 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="dashboard-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="dashboard-stat">{{ stats.total_schools }}</div>
+                            <div class="text-muted">Всего школ</div>
+                        </div>
+                        <div class="dashboard-icon text-primary">
+                            <i class="fas fa-building"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="dashboard-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="dashboard-stat">{{ stats.total_users }}</div>
+                            <div class="text-muted">Всего пользователей</div>
+                        </div>
+                        <div class="dashboard-icon text-success">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="dashboard-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="dashboard-stat">{{ stats.active_schools }}</div>
+                            <div class="text-muted">Активных школ</div>
+                        </div>
+                        <div class="dashboard-icon text-info">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6">
+            <div class="dashboard-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="dashboard-stat">{{ stats.total_revenue|default(0) }}</div>
+                            <div class="text-muted">Общий доход (₽)</div>
+                        </div>
+                        <div class="dashboard-icon text-warning">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="row g-4">
+        <!-- Список школ -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-building me-2"></i>
+                        Управление школами
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <input type="text" class="form-control form-control-sm" placeholder="Поиск школ..." id="schoolSearch">
+                        <select class="form-select form-select-sm" id="schoolFilter">
+                            <option value="">Все школы</option>
+                            <option value="active">Активные</option>
+                            <option value="inactive">Неактивные</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Название</th>
+                                    <th>URL</th>
+                                    <th>Пользователей</th>
+                                    <th>Статус</th>
+                                    <th>Дата создания</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for school in schools %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            {% if school.logo_url %}
+                                                <img src="{{ school.logo_url }}" alt="Логотип" class="rounded me-2" width="32" height="32">
+                                            {% else %}
+                                                <div class="bg-secondary rounded me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                    <i class="fas fa-building text-white"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <div class="fw-bold">{{ school.name }}</div>
+                                                <small class="text-muted">{{ school.description|truncate(50) }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <code>{{ school.unique_url }}</code>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ school.user_count|default(0) }}</span>
+                                    </td>
+                                    <td>
+                                        {% if school.is_active %}
+                                            <span class="badge bg-success">Активна</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Неактивна</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ school.created_at.strftime('%d.%m.%Y') }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <button class="btn btn-outline-primary" onclick="viewSchool({{ school.id }})">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button class="btn btn-outline-warning" onclick="editSchool({{ school.id }})">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="deleteSchool({{ school.id }})">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Боковая панель -->
+        <div class="col-lg-4">
+            <!-- Последние действия -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-history me-2"></i>
+                        Последние действия
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="activity-list">
+                        {% for activity in recent_activities %}
+                        <div class="activity-item d-flex align-items-start mb-3">
+                            <div class="activity-icon me-3">
+                                <i class="fas fa-circle text-primary" style="font-size: 0.5rem;"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text">{{ activity.description }}</div>
+                                <small class="text-muted">{{ activity.timestamp.strftime('%d.%m.%Y %H:%M') }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Быстрые действия -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>
+                        Быстрые действия
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary btn-sm" onclick="generateReport()">
+                            <i class="fas fa-file-alt me-2"></i>
+                            Создать отчет
+                        </button>
+                        <button class="btn btn-outline-info btn-sm" onclick="backupDatabase()">
+                            <i class="fas fa-database me-2"></i>
+                            Резервная копия
+                        </button>
+                        <button class="btn btn-outline-warning btn-sm" onclick="systemMaintenance()">
+                            <i class="fas fa-tools me-2"></i>
+                            Техобслуживание
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно создания школы -->
+<div class="modal fade" id="createSchoolModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus me-2"></i>
+                    Создать новую школу
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createSchoolForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="schoolName" class="form-label">Название школы *</label>
+                                <input type="text" class="form-control" id="schoolName" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="schoolUrl" class="form-label">Уникальный URL *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">/school/</span>
+                                    <input type="text" class="form-control" id="schoolUrl" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="schoolDescription" class="form-label">Описание</label>
+                        <textarea class="form-control" id="schoolDescription" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="schoolContacts" class="form-label">Контактная информация</label>
+                        <textarea class="form-control" id="schoolContacts" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="schoolLogo" class="form-label">Логотип</label>
+                        <input type="file" class="form-control" id="schoolLogo" accept="image/*">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" onclick="submitCreateSchool()">
+                    <i class="fas fa-plus me-2"></i>
+                    Создать школу
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно создания пользователя -->
+<div class="modal fade" id="createUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Создать пользователя
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createUserForm">
+                    <div class="mb-3">
+                        <label for="userUsername" class="form-label">Имя пользователя *</label>
+                        <input type="text" class="form-control" id="userUsername" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="userEmail" class="form-label">Email *</label>
+                        <input type="email" class="form-control" id="userEmail" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="userRole" class="form-label">Роль *</label>
+                        <select class="form-select" id="userRole" required>
+                            <option value="">Выберите роль...</option>
+                            <option value="project_admin">Админ проекта</option>
+                            <option value="school_admin">Админ школы</option>
+                            <option value="teacher">Учитель</option>
+                            <option value="student">Ученик</option>
+                            <option value="parent">Родитель</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="userSchool" class="form-label">Школа</label>
+                        <select class="form-select" id="userSchool">
+                            <option value="">Без школы</option>
+                            {% for school in schools %}
+                                <option value="{{ school.id }}">{{ school.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="button" class="btn btn-primary" onclick="submitCreateUser()">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Создать пользователя
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Функции для управления школами
+function viewSchool(schoolId) {
+    // Переход к детальному просмотру школы
+    window.location.href = `/admin/school/${schoolId}`;
+}
+
+function editSchool(schoolId) {
+    // Редактирование школы
+    console.log('Редактирование школы:', schoolId);
+}
+
+function deleteSchool(schoolId) {
+    if (confirm('Вы уверены, что хотите удалить эту школу? Это действие нельзя отменить.')) {
+        // Удаление школы
+        console.log('Удаление школы:', schoolId);
+    }
+}
+
+// Функции для создания школы
+function submitCreateSchool() {
+    const formData = {
+        name: document.getElementById('schoolName').value,
+        unique_url: document.getElementById('schoolUrl').value,
+        description: document.getElementById('schoolDescription').value,
+        contact_info: document.getElementById('schoolContacts').value
+    };
+    
+    // Отправка данных на сервер
+    fetch('/api/schools', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.id) {
+            EduVerse.showNotification('Школа успешно создана!', 'success');
+            location.reload();
+        } else {
+            EduVerse.showNotification('Ошибка при создании школы', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        EduVerse.showNotification('Ошибка при создании школы', 'danger');
+    });
+}
+
+// Функции для создания пользователя
+function submitCreateUser() {
+    const formData = {
+        username: document.getElementById('userUsername').value,
+        email: document.getElementById('userEmail').value,
+        role: document.getElementById('userRole').value,
+        school_id: document.getElementById('userSchool').value || null
+    };
+    
+    // Отправка данных на сервер
+    fetch('/api/users', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.id) {
+            EduVerse.showNotification('Пользователь успешно создан!', 'success');
+            location.reload();
+        } else {
+            EduVerse.showNotification('Ошибка при создании пользователя', 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        EduVerse.showNotification('Ошибка при создании пользователя', 'danger');
+    });
+}
+
+// Функции быстрых действий
+function generateReport() {
+    EduVerse.showNotification('Генерация отчета...', 'info');
+}
+
+function backupDatabase() {
+    EduVerse.showNotification('Создание резервной копии...', 'info');
+}
+
+function systemMaintenance() {
+    EduVerse.showNotification('Запуск техобслуживания...', 'info');
+}
+
+// Поиск и фильтрация школ
+document.getElementById('schoolSearch').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        const schoolName = row.querySelector('td:first-child').textContent.toLowerCase();
+        if (schoolName.includes(searchTerm)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+document.getElementById('schoolFilter').addEventListener('change', function(e) {
+    const filterValue = e.target.value;
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        const status = row.querySelector('td:nth-child(4)').textContent;
+        if (filterValue === '' || 
+            (filterValue === 'active' && status.includes('Активна')) ||
+            (filterValue === 'inactive' && status.includes('Неактивна'))) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}
