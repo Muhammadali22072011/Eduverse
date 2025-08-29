@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block title %}EduVerse - Образовательная платформа{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-center py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h1 class="display-4 fw-bold mb-4">
+                    <i class="fas fa-graduation-cap me-3"></i>
+                    EduVerse
+                </h1>
+                <p class="lead mb-4">
+                    Многофункциональная образовательная платформа нового поколения для создания и управления школами
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg px-4">
+                        <i class="fas fa-user-plus me-2"></i>Начать
+                    </a>
+                    <a href="{{ url_for('main.about') }}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="fas fa-info-circle me-2"></i>Узнать больше
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-6 fw-bold mb-3">Возможности платформы</h2>
+                <p class="lead text-muted">
+                    Все необходимые инструменты для современного образовательного процесса
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-comments fa-3x text-primary"></i>
+                        </div>
+                        <h5 class="card-title">Чат система</h5>
+                        <p class="card-text text-muted">
+                            Реальное время общения между учениками, учителями и родителями
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-credit-card fa-3x text-success"></i>
+                        </div>
+                        <h5 class="card-title">Система оплат</h5>
+                        <p class="card-text text-muted">
+                            Отслеживание платежей и автоматические уведомления
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-calendar-alt fa-3x text-info"></i>
+                        </div>
+                        <h5 class="card-title">Расписание</h5>
+                        <p class="card-text text-muted">
+                            Удобное планирование уроков и школьных событий
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="feature-icon mb-3">
+                            <i class="fas fa-chart-line fa-3x text-warning"></i>
+                        </div>
+                        <h5 class="card-title">Система оценок</h5>
+                        <p class="card-text text-muted">
+                            10-балльная система оценок с детальной аналитикой
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Schools Section -->
+{% if schools %}
+<section class="schools-section py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-6 fw-bold mb-3">Наши школы</h2>
+                <p class="lead text-muted">
+                    Присоединяйтесь к ведущим образовательным учреждениям
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for school in schools %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card school-card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        {% if school.logo %}
+                        <img src="{{ url_for('static', filename='uploads/' + school.logo) }}" 
+                             alt="{{ school.name }}" class="school-logo">
+                        {% else %}
+                        <div class="school-logo bg-secondary d-flex align-items-center justify-content-center">
+                            <i class="fas fa-school fa-2x text-white"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <h5 class="card-title">{{ school.name }}</h5>
+                        <p class="card-text text-muted text-truncate-2">
+                            {{ school.description or 'Описание школы' }}
+                        </p>
+                        
+                        <div class="school-info mb-3">
+                            {% if school.address %}
+                            <div class="small text-muted mb-1">
+                                <i class="fas fa-map-marker-alt me-1"></i>{{ school.address }}
+                            </div>
+                            {% endif %}
+                            
+                            {% if school.phone %}
+                            <div class="small text-muted mb-1">
+                                <i class="fas fa-phone me-1"></i>{{ school.phone }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <a href="{{ url_for('school.school_view', slug=school.slug) }}" 
+                           class="btn btn-outline-primary">
+                            Подробнее
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{{ url_for('school.schools_list') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-school me-2"></i>Все школы
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- How It Works Section -->
+<section class="how-it-works-section py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-6 fw-bold mb-3">Как это работает</h2>
+                <p class="lead text-muted">
+                    Простой процесс создания и управления образовательной средой
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="step-number mb-3">
+                        <span class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                              style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">
+                            1
+                        </span>
+                    </div>
+                    <h5>Создание школы</h5>
+                    <p class="text-muted">
+                        Зарегистрируйте свою школу на платформе и настройте основные параметры
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="step-number mb-3">
+                        <span class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                              style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">
+                            2
+                        </span>
+                    </div>
+                    <h5>Добавление пользователей</h5>
+                    <p class="text-muted">
+                        Пригласите учителей, учеников и родителей в вашу образовательную среду
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="step-number mb-3">
+                        <span class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                              style="width: 60px; height: 60px; font-size: 1.5rem; font-weight: bold;">
+                            3
+                        </span>
+                    </div>
+                    <h5>Начало работы</h5>
+                    <p class="text-muted">
+                        Используйте все возможности платформы для эффективного обучения
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section py-5 bg-primary text-white text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-6 fw-bold mb-4">Готовы начать?</h2>
+                <p class="lead mb-4">
+                    Присоединяйтесь к тысячам школ, которые уже используют EduVerse
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg px-4">
+                        <i class="fas fa-rocket me-2"></i>Создать школу
+                    </a>
+                    <a href="{{ url_for('main.contact') }}" class="btn btn-outline-light btn-lg px-4">
+                        <i class="fas fa-envelope me-2"></i>Связаться с нами
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+}
+
+.feature-icon {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-number {
+    margin-bottom: 1.5rem;
+}
+
+.school-card {
+    transition: transform 0.3s ease;
+}
+
+.school-card:hover {
+    transform: translateY(-5px);
+}
+
+.cta-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+</style>
+{% endblock %}

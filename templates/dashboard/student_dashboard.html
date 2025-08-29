@@ -1,0 +1,176 @@
+<!-- Student Dashboard Content -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-chart-line me-2"></i>Мои оценки
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if recent_grades %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Предмет</th>
+                            <th>Оценка</th>
+                            <th>Тип</th>
+                            <th>Дата</th>
+                            <th>Комментарий</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for grade in recent_grades %}
+                        <tr>
+                            <td>
+                                <span class="badge" style="background-color: {{ grade.subject.color }}">
+                                    {{ grade.subject.name }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="grade-badge grade-{{ grade.get_grade_color() }}">
+                                    {{ grade.grade }}
+                                </span>
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ grade.grade_type }}</small>
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ grade.date_given.strftime('%d.%m.%Y') }}</small>
+                            </td>
+                            <td>
+                                {% if grade.comment %}
+                                    <small class="text-muted">{{ grade.comment }}</small>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-center mt-3">
+                <a href="#" class="btn btn-outline-primary btn-sm">Все оценки</a>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-chart-line fa-2x text-muted mb-3"></i>
+                <p class="text-muted mb-0">Пока нет оценок</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Payments Section -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-credit-card me-2"></i>Статус оплат
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if payments %}
+            <div class="row">
+                {% for payment in payments %}
+                <div class="col-md-6 mb-3">
+                    <div class="card border">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="mb-0">{{ payment.payment_type }}</h6>
+                                <span class="payment-status payment-{{ payment.get_status_color() }}">
+                                    {{ payment.get_status_text() }}
+                                </span>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <strong>{{ payment.amount }} {{ payment.currency }}</strong>
+                                {% if payment.is_partial() %}
+                                    <small class="text-muted">
+                                        (оплачено: {{ payment.paid_amount }} {{ payment.currency }})
+                                    </small>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    Срок: {{ payment.due_date.strftime('%d.%m.%Y') }}
+                                </small>
+                                {% if payment.is_overdue() %}
+                                    <br><small class="text-danger">
+                                        Просрочено на {{ payment.days_until_due()|abs }} дн.
+                                    </small>
+                                {% endif %}
+                            </div>
+                            
+                            {% if payment.description %}
+                                <p class="small text-muted mb-0">{{ payment.description }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="text-center mt-3">
+                <a href="#" class="btn btn-outline-primary btn-sm">Все оплаты</a>
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-credit-card fa-2x text-muted mb-3"></i>
+                <p class="text-muted mb-0">Нет активных оплат</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Today's Schedule -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-calendar-day me-2"></i>Расписание на сегодня
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if today_schedule %}
+            <div class="timeline">
+                {% for event in today_schedule %}
+                <div class="schedule-event {{ event.event_type }}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1">{{ event.title }}</h6>
+                            {% if event.description %}
+                                <p class="mb-1 small text-muted">{{ event.description }}</p>
+                            {% endif %}
+                            <div class="d-flex align-items-center gap-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ event.start_time.strftime('%H:%M') }} - {{ event.end_time.strftime('%H:%M') }}
+                                </small>
+                                {% if event.room %}
+                                    <small class="text-muted">
+                                        <i class="fas fa-door-open me-1"></i>{{ event.room }}
+                                    </small>
+                                {% endif %}
+                                {% if event.teacher %}
+                                    <small class="text-muted">
+                                        <i class="fas fa-user me-1"></i>{{ event.teacher.get_full_name() }}
+                                    </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <span class="badge" style="background-color: {{ event.color }}">
+                                {{ event.subject.name if event.subject else event.event_type }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-calendar-day fa-2x text-muted mb-3"></i>
+                <p class="text-muted mb-0">Сегодня нет занятий</p>
+            </div>
+        {% endif %}
+    </div>
+</div>

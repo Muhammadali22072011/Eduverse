@@ -1,0 +1,1 @@
+# Routes package for EduVerse platform
