@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block title %}Контакты - EduVerse{% endblock %}
+
+{% block content %}
+<!-- Contact Hero Section -->
+<section class="contact-hero text-center py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h1 class="display-4 fw-bold mb-4">
+                    <i class="fas fa-envelope me-3 text-primary"></i>
+                    Свяжитесь с нами
+                </h1>
+                <p class="lead text-muted">
+                    У вас есть вопросы? Мы готовы помочь!
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Form Section -->
+<section class="contact-form-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-primary text-white text-center py-3">
+                        <h4 class="mb-0">
+                            <i class="fas fa-paper-plane me-2"></i>Отправить сообщение
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <form class="needs-validation" novalidate>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="firstName" class="form-label">Имя *</label>
+                                    <input type="text" class="form-control" id="firstName" required>
+                                    <div class="invalid-feedback">
+                                        Пожалуйста, введите ваше имя.
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="lastName" class="form-label">Фамилия *</label>
+                                    <input type="text" class="form-control" id="lastName" required>
+                                    <div class="invalid-feedback">
+                                        Пожалуйста, введите вашу фамилию.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="email" required>
+                                <div class="invalid-feedback">
+                                    Пожалуйста, введите корректный email адрес.
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="subject" class="form-label">Тема *</label>
+                                <select class="form-select" id="subject" required>
+                                    <option value="">Выберите тему</option>
+                                    <option value="general">Общий вопрос</option>
+                                    <option value="technical">Техническая поддержка</option>
+                                    <option value="billing">Вопросы по оплате</option>
+                                    <option value="feature">Предложение по улучшению</option>
+                                    <option value="bug">Сообщение об ошибке</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Пожалуйста, выберите тему сообщения.
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="message" class="form-label">Сообщение *</label>
+                                <textarea class="form-control" id="message" rows="5" required 
+                                          placeholder="Опишите ваш вопрос или предложение..."></textarea>
+                                <div class="invalid-feedback">
+                                    Пожалуйста, введите текст сообщения.
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="agreement" required>
+                                <label class="form-check-label" for="agreement">
+                                    Я согласен с <a href="#" class="text-decoration-none">политикой конфиденциальности</a> *
+                                </label>
+                                <div class="invalid-feedback">
+                                    Вы должны согласиться перед отправкой.
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>Отправить сообщение
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Information Section -->
+<section class="contact-info-section py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-6 fw-bold mb-3">Другие способы связи</h2>
+                <p class="lead text-muted">
+                    Выберите наиболее удобный для вас способ связи
+                </p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="contact-method">
+                    <div class="contact-icon mb-3">
+                        <i class="fas fa-envelope fa-3x text-primary"></i>
+                    </div>
+                    <h5>Email</h5>
+                    <p class="text-muted mb-2">Напишите нам на email</p>
+                    <a href="mailto:support@eduverse.com" class="btn btn-outline-primary">
+                        support@eduverse.com
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-md-4 text-center">
+                <div class="contact-method">
+                    <div class="contact-icon mb-3">
+                        <i class="fas fa-phone fa-3x text-success"></i>
+                    </div>
+                    <h5>Телефон</h5>
+                    <p class="text-muted mb-2">Позвоните нам</p>
+                    <a href="tel:+78001234567" class="btn btn-outline-success">
+                        +7 (800) 123-45-67
+                    </a>
+                </div>
+            </div>
+            
+            <div class="col-md-4 text-center">
+                <div class="contact-method">
+                    <div class="contact-icon mb-3">
+                        <i class="fas fa-comments fa-3x text-info"></i>
+                    </div>
+                    <h5>Чат поддержки</h5>
+                    <p class="text-muted mb-2">Онлайн чат с поддержкой</p>
+                    <button class="btn btn-outline-info" onclick="openSupportChat()">
+                        Открыть чат
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-6 fw-bold mb-3">Часто задаваемые вопросы</h2>
+                <p class="lead text-muted">
+                    Ответы на самые популярные вопросы
+                </p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq1">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                                Как создать школу на платформе?
+                            </button>
+                        </h2>
+                        <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Для создания школы необходимо зарегистрироваться на платформе и иметь права администратора. 
+                                После регистрации вы сможете создать школу через раздел "Создание школы" в панели управления.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq2">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
+                                Какие роли доступны на платформе?
+                            </button>
+                        </h2>
+                        <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Платформа поддерживает следующие роли: супер-администратор, администратор проекта, 
+                                администратор школы, учитель, ученик и родитель. Каждая роль имеет свои права и возможности.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq3">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
+                                Как работает система чатов?
+                            </button>
+                        </h2>
+                        <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Система чатов работает в реальном времени и позволяет общаться между участниками образовательного процесса. 
+                                Поддерживаются приватные и групповые чаты, а также чаты по предметам и классам.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faq4">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4">
+                                Можно ли экспортировать данные?
+                            </button>
+                        </h2>
+                        <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Да, платформа поддерживает экспорт данных в различных форматах (CSV, Excel, PDF) 
+                                для создания отчетов и аналитики.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.contact-hero {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.contact-method {
+    padding: 2rem 1rem;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: transform 0.3s ease;
+}
+
+.contact-method:hover {
+    transform: translateY(-5px);
+}
+
+.contact-icon {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #e7f1ff;
+    color: #0c63e4;
+}
+
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                } else {
+                    event.preventDefault();
+                    // Show success message
+                    showSuccessMessage();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+
+function showSuccessMessage() {
+    // Create success alert
+    const alert = document.createElement('div');
+    alert.className = 'alert alert-success alert-dismissible fade show';
+    alert.innerHTML = `
+        <i class="fas fa-check-circle me-2"></i>
+        <strong>Спасибо!</strong> Ваше сообщение отправлено. Мы свяжемся с вами в ближайшее время.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Insert before the form
+    const form = document.querySelector('.contact-form-section .card');
+    form.parentNode.insertBefore(alert, form);
+    
+    // Scroll to alert
+    alert.scrollIntoView({ behavior: 'smooth' });
+}
+
+function openSupportChat() {
+    // This would typically open a support chat widget
+    alert('Функция чата поддержки будет доступна в ближайшее время!');
+}
+</script>
+{% endblock %}
