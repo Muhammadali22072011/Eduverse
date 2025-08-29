@@ -8,7 +8,7 @@ import os
 # Инициализация Flask приложения
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///eduverse.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///eduverse_simple.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Инициализация расширений
@@ -171,21 +171,37 @@ def create_school():
     
     return jsonify({'id': school.id, 'message': 'Школа создана успешно'})
 
+# Простой тестовый маршрут
+@app.route('/health')
+def health():
+    return jsonify({'status': 'ok', 'message': 'EduVerse работает!'})
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
+    try:
+        with app.app_context():
+            # Создание таблиц
+            db.create_all()
+            
+            # Создание супер-админа по умолчанию
+            if not User.query.filter_by(role='super_admin').first():
+                super_admin = User(
+                    username='admin',
+                    email='admin@eduverse.com',
+                    password_hash=generate_password_hash('admin123'),
+                    role='super_admin'
+                )
+                db.session.add(super_admin)
+                db.session.commit()
+                print("✅ Супер-админ создан: admin / admin123")
+            else:
+                print("✅ Супер-админ уже существует")
         
-        # Создание супер-админа по умолчанию
-        if not User.query.filter_by(role='super_admin').first():
-            super_admin = User(
-                username='admin',
-                email='admin@eduverse.com',
-                password_hash=generate_password_hash('admin123'),
-                role='super_admin'
-            )
-            db.session.add(super_admin)
-            db.session.commit()
-            print("Супер-админ создан: admin / admin123")
-    
-    print("🚀 EduVerse запущен на http://localhost:5001")
-    app.run(debug=True, host='0.0.0.0', port=5001)
+        print("🚀 EduVerse (без WebSocket) запущен на http://localhost:5001")
+        print("📊 База данных: eduverse_simple.db")
+        print("🔑 Логин: admin / admin123")
+        
+        app.run(debug=True, host='0.0.0.0', port=5001)
+        
+    except Exception as e:
+        print(f"❌ Ошибка запуска: {e}")
+        print("Попробуйте запустить приложение снова")
