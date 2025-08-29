@@ -1,24 +1,19 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import os
 
 # Инициализация Flask приложения
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///eduverse.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///eduverse_minimal.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Инициализация расширений
+# Инициализация SQLAlchemy
 db = SQLAlchemy(app)
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
 
 # Простые модели базы данных
-class User(UserMixin, db.Model):
+class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -32,11 +27,6 @@ class School(db.Model):
     description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-# Инициализация пользователя для Flask-Login
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
 # Маршруты
 @app.route('/')
 def index():
@@ -49,8 +39,8 @@ def login():
         password = request.form.get('password')
         user = User.query.filter_by(username=username).first()
         
-        if user and check_password_hash(user.password_hash, password):
-            login_user(user)
+        if user and user.password_hash == password:  # Упрощенная проверка для тестирования
+            flash('Вход выполнен успешно!')
             return redirect(url_for('dashboard'))
         else:
             flash('Неверное имя пользователя или пароль')
@@ -76,7 +66,7 @@ def register():
         user = User(
             username=username,
             email=email,
-            password_hash=generate_password_hash(password),
+            password_hash=password,  # Упрощено для тестирования
             role=role
         )
         db.session.add(user)
@@ -87,29 +77,12 @@ def register():
     
     return render_template('register.html')
 
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('index'))
-
 @app.route('/dashboard')
-@login_required
 def dashboard():
-    if current_user.role == 'super_admin':
-        return redirect(url_for('super_admin_dashboard'))
-    elif current_user.role == 'student':
-        return redirect(url_for('student_dashboard'))
-    else:
-        return redirect(url_for('index'))
+    return render_template('dashboard.html')
 
 @app.route('/super-admin-dashboard')
-@login_required
 def super_admin_dashboard():
-    if current_user.role != 'super_admin':
-        flash('Недостаточно прав')
-        return redirect(url_for('dashboard'))
-    
     schools = School.query.all()
     stats = {
         'total_schools': len(schools),
@@ -124,12 +97,7 @@ def super_admin_dashboard():
                          recent_activities=[])
 
 @app.route('/student-dashboard')
-@login_required
 def student_dashboard():
-    if current_user.role != 'student':
-        flash('Недостаточно прав')
-        return redirect(url_for('dashboard'))
-    
     stats = {
         'average_grade': 'N/A',
         'subjects_count': 0,
@@ -156,11 +124,7 @@ def get_schools():
     } for school in schools])
 
 @app.route('/api/schools', methods=['POST'])
-@login_required
 def create_school():
-    if current_user.role not in ['super_admin']:
-        return jsonify({'error': 'Недостаточно прав'}), 403
-    
     data = request.get_json()
     school = School(
         name=data['name'],
@@ -180,12 +144,12 @@ if __name__ == '__main__':
             super_admin = User(
                 username='admin',
                 email='admin@eduverse.com',
-                password_hash=generate_password_hash('admin123'),
+                password_hash='admin123',
                 role='super_admin'
             )
             db.session.add(super_admin)
             db.session.commit()
             print("Супер-админ создан: admin / admin123")
     
-    print("🚀 EduVerse запущен на http://localhost:5001")
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    print("🚀 EduVerse (минимальная версия) запущен на http://localhost:8080")
+    app.run(debug=True, host='0.0.0.0', port=8080)
